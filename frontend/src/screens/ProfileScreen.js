@@ -1,15 +1,19 @@
-import { register } from '../api';
-import { getUserInfo, setUserInfo } from '../localStorage';
+import { update } from '../api';
+import { getUserInfo, setUserInfo, clearUser } from '../localStorage';
 import { showLoading, showMessage } from '../utils';
 
-const RegisterScreen = {
+const ProfileScreen = {
   after_render: () => {
+    document.getElementById('signout-button').addEventListener('click', () => {
+      clearUser();
+      document.location.hash = '/';
+    });
     document
-      .getElementById('register-form')
+      .getElementById('profile-form')
       .addEventListener('submit', async (e) => {
         e.preventDefault();
         showLoading(true);
-        const data = await register({
+        const data = await update({
           name: document.getElementById('name').value,
           email: document.getElementById('email').value,
           password: document.getElementById('password').value,
@@ -24,23 +28,24 @@ const RegisterScreen = {
       });
   },
   render: () => {
-    if (getUserInfo().name) {
+    const { name, email } = getUserInfo();
+    if (!name) {
       document.location.hash = '/';
     }
     return `
   <div class="form-container">
-      <form id="register-form">
+      <form id="profile-form">
         <ul class="form-items">
           <li>
-            <h1>Create Account</h1>
+            <h1>Profile</h1>
           </li>
           <li>
             <label for="name">Name</label>
-            <input type="name" name="name" id="name" />
+            <input type="name" name="name" id="name" value="${name}" />
           </li>
           <li>
             <label for="email">Email</label>
-            <input type="email" name="email" id="email" />
+            <input type="email" name="email" id="email" value="${email}" />
           </li>
           <li>
             <label for="password">Password</label>
@@ -51,13 +56,10 @@ const RegisterScreen = {
             <input type="password" name="repassword" id="repassword" />
           </li>
           <li>
-            <button type="submit" class="primary">Register</button>
+            <button type="submit" class="btn primary border">Update</button>
           </li>
           <li>
-            <div>
-              Already have an account?
-              <a href="/#/signin">Sign-In </a>
-            </div>
+            <button type="button" class="btn border" id="signout-button">Sign Out</button>
           </li>
         </ul>
       </form>
@@ -65,4 +67,4 @@ const RegisterScreen = {
   },
 };
 
-export default RegisterScreen;
+export default ProfileScreen;

@@ -1,6 +1,32 @@
+import { signin } from '../api';
+import { getUserInfo, setUserInfo } from '../localStorage';
+import { redirectUser, showLoading, showMessage } from '../utils';
+
 const SigninScreen = {
-  after_render: () => {},
+  after_render: () => {
+    document
+      .getElementById('signin-form')
+      .addEventListener('submit', async (e) => {
+        e.preventDefault();
+        showLoading(true);
+        const data = await signin({
+          email: document.getElementById('email').value,
+          password: document.getElementById('password').value,
+        });
+        showLoading(false);
+        console.log(data);
+        if (data.error) {
+          showMessage(data.error);
+        } else {
+          setUserInfo(data);
+          redirectUser();
+        }
+      });
+  },
   render: () => {
+    if (getUserInfo().name) {
+      document.location.hash = '/';
+    }
     return `
     <div class="form-container">
       <form id="signin-form">
